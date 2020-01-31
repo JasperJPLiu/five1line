@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>Five on Line</title>
+    <script type="text/javascript" src="jquery-3.2.1.min.js"></script>
+</head>
+<style>
+    * {
+        padding: 0px;
+        margin: 0px;
+    }
+
+    body {
+        padding-top: 5vw;
+        background-color: #000;
+    }
+
+    .box {
+        position: absolute;
+    }
+
+    .box.left {
+        width: 25%;
+        left: 0;
+        margin: 0 auto;
+    }
+
+    .box.middle {
+        width: 50%;
+        left: 25%;
+    }
+
+    .box.right {
+        width: 25%;
+        left: 75%;
+    }
+
+    .main {
+        box-sizing: border-box;
+        padding: 0.2%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+        background-color: #ccc;
+        border: 3px solid;
+        border-color: #fff #000 #000 #fff;
+    }
+
+    .score {
+        width: 60%;
+        height: 5vw;
+        margin: 0 auto;
+        box-sizing: border-box;
+        padding: 0.2%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+        background-color: black;
+        border: 3px solid;
+        border-color: #ffffff;
+    }
+
+    .main div {
+        box-sizing: border-box;
+        background-color: #cccccc;
+        border: 3px solid;
+        border-color: #fff #000 #000 #fff;
+        flex-shrink: 1;
+    }
+
+    .box.left .main {
+        width: 60%;
+        height: 5vw;
+        margin: 0 auto;
+    }
+
+    .box.left .main div {
+        flex-basis: 33.333333%;
+        height: 100%;
+    }
+
+    .box.left .main div::after {
+        display: block;
+        content: "";
+        width: 70%;
+        height: 3vw;
+        /*background-color: red;*/
+        border-radius: 50%;
+        margin: 10% auto;
+        border: 1px solid #000000;
+        box-shadow: inset -5px -4px 16px 1px black;
+    }
+
+    .box.left h3 {
+        font-family: "Weibei SC";
+        text-align: center;
+        color: white;
+        margin: 1vw auto 0.5vw auto;
+    }
+
+    .box.left h2 {
+        text-align: center;
+        color: white;
+        margin: 1vw auto 0.5vw auto;
+    }
+
+    .box.middle .main {
+        width: 100%;
+        height: 50vw;
+        margin: 1vw auto 0 auto;
+    }
+
+    .box.middle .main div {
+        flex-basis: 11.11111111%;
+        height: 11.11111111%;
+    }
+
+    .box.middle .main div::after {
+        display: block;
+        content: "";
+        width: 80%;
+        height: 4vw;
+        /*background-color: blue;*/
+        border-radius: 50%;
+        margin: 10% auto;
+        border: 1px solid #000000;
+        box-shadow: inset -5px -4px 16px 1px black, 0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.3);;
+    }
+
+    @keyframes onclicked {
+        0% {
+            transform: translate(0px, 0px);
+        }
+        50% {
+            transform: translate(0px, -10px);
+        }
+        100% {
+            transform: translate(0px, 0px);
+        }
+    }
+
+    @-moz-keyframes onclicked {
+        0% {
+            transform: translate(0px, 0px);
+        }
+        50% {
+            transform: translate(0px, -10px);
+        }
+        100% {
+            transform: translate(0px, 0px);
+        }
+    }
+
+    @-webkit-keyframes onclicked {
+        0% {
+            transform: translate(0px, 0px);
+        }
+        50% {
+            transform: translate(0px, -10px);
+        }
+        100% {
+            transform: translate(0px, 0px);
+        }
+    }
+
+    @-o-keyframes onclicked {
+        0% {
+            transform: translate(0px, 0px);
+        }
+        50% {
+            transform: translate(0px, -10px);
+        }
+        100% {
+            transform: translate(0px, 0px);
+        }
+    }
+
+    @keyframes appear {
+        0% {
+            width: 20%;
+            height: 1vw;;
+        }
+        50% {
+            width: 40%;
+            height: 2vw;
+        }
+        100% {
+            width: 80%;
+            height: 4vw;
+        }
+    }
+
+    .empty::after {
+        opacity: 0;
+    }
+
+    .red::after {
+        background-color: red;
+    }
+
+    .yellow::after {
+        background-color: #ffea00;
+    }
+
+    .blue::after {
+        background-color: blue;
+    }
+
+    .brown::after {
+        background-color: saddlebrown;
+    }
+
+    .pink::after {
+        background-color: #f48fb1;
+    }
+
+    .skyblue::after {
+        background-color: #18ffff;
+    }
+
+    .greenyellow::after {
+        background-color: #64dd17;
+    }
+
+    .box.middle .main div.clicked {
+        background-color: #6e6e6e;
+        border-color: #3c3c3c;
+
+        /*animation: onclicked 1s infinite;*/
+        /*-moz-animation: onclicked 1s infinite;*/
+        /*-webkit-animation: onclicked 1s infinite;*/
+        /*-o-animation: onclicked 1s infinite;*/
+    }
+
+    .appeared::after {
+        animation: appear 1s;
+    }
+
+    #cute {
+        margin: 3vw auto;
+        width: 80%;
+        height: 20vw;
+        background-image: url("cute.jpg");
+        background-size: 100% 20vw;
+    }
+
+    #probability {
+        width: 80%;
+        margin: 2vw auto;
+        color: white;
+    }
+
+    #probability tr td {
+        font-size: 2vw;
+        padding: 1vw 1vw;
+        border: 2px solid;
+        border-color: white;
+        text-align: right;
+    }
+
+    #probability tr td div::after {
+        display: block;
+        content: "";
+        width: 3vw;
+        height: 3vw;
+        /*background-color: blue;*/
+        border-radius: 50%;
+        margin: 10% auto;
+        border: 1px solid #fff;
+        box-shadow: inset -5px -4px 16px 1px black;
+    }
+
+    .modal {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+    }
+
+    .modal .modal-body {
+        box-sizing: border-box;
+        padding: 2vw 1vw;
+        text-align: center;
+        width: 20%;
+        height: 20vw;
+        background-color: white;
+        margin: 8vw auto;
+        border: 1px solid #3c3c3c;
+        border-radius: 5%;
+    }
+
+    .modal .modal-body button {
+        display: block;
+        width: 60px;
+        height: 30px;
+        border-radius: 5%;
+        outline: none;
+        margin: 0 auto;
+    }
+
+    .box.right button {
+        display: block;
+        width: 60px;
+        height: 30px;
+        border-radius: 5%;
+        outline: none;
+        margin: 0 auto;
+    }
+</style>
+<body>
+<div class="box left">
+    <h3>下一步</h3>
+    <div class="main">
+        <div id="next_1" class="red"></div>
+        <div id="next_2" class="empty"></div>
+        <div id="next_3" class="empty"></div>
+    </div>
+    <h3>分数</h3>
+    <div class="score">
+        <h2 id="score">0</h2>
+    </div>
+    <h3 id="dname">正常难度最高分</h3>
+    <div class="score">
+        <h2 id="maxscore">0</h2>
+    </div>
+    <div id="cute"></div>
+</div>
+<div class="box middle">
+    <div class="main"></div>
+</div>
+<div class="box right">
+    <table id="probability">
+        <tr>
+            <td>
+                <div class="red"></div>
+            </td>
+            <td id="red_probability">0%</td>
+
+        </tr>
+        <tr>
+            <td>
+                <div class="yellow"></div>
+            </td>
+            <td id="yellow_probability">0%</td>
+
+        </tr>
+        <tr>
+            <td>
+                <div class="brown"></div>
+            </td>
+            <td id="brown_probability">0%</td>
+
+        </tr>
+        <tr>
+            <td>
+                <div class="skyblue"></div>
+            </td>
+            <td id="skyblue_probability">0%</td>
+
+        </tr>
+        <tr>
+            <td>
+                <div class="pink"></div>
+            </td>
+            <td id="pink_probability">0%</td>
+
+        </tr>
+        <tr>
+            <td>
+                <div class="greenyellow"></div>
+            </td>
+            <td id="greenyellow_probability">0%</td>
+
+        </tr>
+        <tr>
+            <td>
+                <div class="blue"></div>
+            </td>
+            <td id="blue_probability">0%</td>
+
+        </tr>
+    </table>
+    <button onclick="showSetting()">设置难度</button>
+</div>
+<div class="modal" id="setting" hidden>
+    <div class="modal-body">
+        <h2>设置</h2>
+        <br>
+        <p>难度</p>
+        <p style="color: #aaa">更改难度后游戏会重新开始</p>
+        <br>
+        <input type="radio" name="difficulty" value="1">最简单&nbsp;
+        <input type="radio" name="difficulty" value="2" checked>正常&nbsp;
+        <input type="radio" name="difficulty" value="3">最困难&nbsp;
+        <br>
+        <br>
+        <button onclick="setDifficulty()">确认</button>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    var colors = ["red", "yellow", "brown", "skyblue", "pink", "greenyellow", "blue"];
+    var turns = 0;
+    var board = new Array();
+    var pointlist = new Array();
+    var pointway = new Array();
+    var score = 0;
+    var lastcount = 81;
+    var difficulty = 2;
+
+    function init() {
+        turns = 0;
+        lastcount = 81;
+        score = 0;
+        setScore(0);
+        if (localStorage.max == null)
+            localStorage.max = 0;
+        if (localStorage.easy == null)
+            localStorage.easy = 0;
+        if (localStorage.hard == null)
+            localStorage.hard = 0;
+        if (difficulty == 1)
+            $("#maxscore").text(localStorage.easy);
+        else if (difficulty == 2)
+            $("#maxscore").text(localStorage.max);
+        else
+            $("#maxscore").text(localStorage.hard);
+        pointlist = new Array();
+        pointway = new Array();
+        for (var i = 0; i < 9; i++) {
+            board[i] = new Array();
+            for (var j = 0; j < 9; j++) {
+                board[i][j] = 0;
+            }
+        }
+        getNext();
+        var main = document.getElementsByClassName("main")[1]
+        var str = "";
+        for (var i = 0; i < 9; i++) {
+            for (var j = 0; j < 9; j++) {
+                str = str + "<div id='" + i + j + "' class='empty'></div>"
+            }
+        }
+        main.innerHTML = str;
+        setNext();
+        getNext();
+    }
+
+    function setDifficulty() {
+        var d = $("input[name='difficulty']:checked").val();
+        if (d != difficulty) {
+            difficulty = d;
+            if (difficulty == 1)
+                $("#dname").text("简单难度最高分");
+            else if (difficulty == 2)
+                $("#dname").text("正常难度最高分");
+            else
+                $("#dname").text("困难难度最高分");
+            init();
+        }
+        $("#setting").fadeOut("fast");
+    }
+
+    function showSetting() {
+        $("#setting").fadeIn("fast");
+    }
+
+    function setScore(count) {
+        var temp = 2;
+        for (var i = 1; i <= count; i++) {
+            if (i > 6)
+                temp += 4;
+            score += temp;
+        }
+        var s = document.getElementById("score");
+        $(s).text(score)
+        if (score > $("#maxscore").text())
+            $("#maxscore").text(score);
+    }
+
+    $(function () {
+        init();
+    });
+
+    function getNext() {
+        var count = 0;
+        turns++;
+        if (difficulty == 1)
+            count == 1;
+        else if (difficulty == 2) {
+            if (turns <= 100)
+                count = 4;
+            else if (turns <= 200)
+                count = 5;
+            else if (turns <= 300)
+                count = 6;
+            else
+                count = 7;
+        }
+        else
+            count = 7;
+        for (var i = 1; i <= 3; i++) {
+            var color = Math.floor(Math.random() * count);
+//            color = 0;
+            var nextbox = document.getElementById("next_" + i);
+            $(nextbox).removeClass().addClass(colors[color]);
+        }
+    }
+
+    function setNext() {
+        var x, y;
+        var temp = 3;
+        if (lastcount < temp) {
+            temp = lastcount;
+        }
+        for (var i = 1; i <= temp; i++) {
+            var flag = false;
+            var nextbox = document.getElementById("next_" + i);
+            var color = nextbox.className;
+            while (!flag) {
+                x = Math.floor(Math.random() * 9);
+                y = Math.floor(Math.random() * 9);
+                if (board[x][y] == 0)
+                    flag = true;
+            }
+            board[x][y] = colors.indexOf(color) + 1;
+        }
+        for (var i = 0; i < 9; i++) {
+            for (var j = 0; j < 9; j++) {
+                if (board[i][j] != 0) {
+                    var count = isVectory(i, j, board[i][j]);
+                    setScore(count);
+                }
+            }
+        }
+        showBoard();
+        if (lastcount <= 0)
+            gameOver();
+
+    }
+
+    function gameOver() {
+        var str = "游戏结束!";
+        if (difficulty == 1) {
+            if (score > localStorage.nomal) {
+                str = str + "新的最高分：" + score + "!";
+                localStorage.nomal = score;
+            }
+        } else if (difficulty == 2) {
+            if (score > localStorage.max) {
+                str = str + "新的最高分：" + score + "!";
+                localStorage.max = score;
+            }
+        } else {
+            if (score > localStorage.hard) {
+                str = str + "新的最高分：" + score + "!";
+                localStorage.hard = score;
+            }
+        }
+        alert(str);
+        init();
+    }
+
+    function showBoard() {
+        lastcount = 81;
+        var count = new Array();
+        for (var i = 0; i < 8; i++)
+            count[i] = 0;
+        for (var i = 0; i < 9; i++) {
+            for (var j = 0; j < 9; j++) {
+                var id = "" + i + j;
+                var boardbox = document.getElementById(id);
+                if (board[i][j] == 0)
+                    $(boardbox).removeClass().addClass("empty");
+                else {
+                    lastcount--;
+                    count[0]++;
+                    count[board[i][j]]++;
+                    var color = colors[board[i][j] - 1];
+                    $(boardbox).removeClass().addClass(color);
+                }
+            }
+        }
+        for (var i = 1; i < 8; i++) {
+            var p = count[i] / count[0];
+            var color = colors[i - 1];
+            var pbox = document.getElementById(color + "_probability");
+            pbox.innerHTML = count[i] + "<span style='color: #ddd'>(" + p.toFixed(2) + "%)</span>";
+        }
+    }
+
+    function isVectory(x, y, color) {
+        var flag = 0;
+        var a, b;
+        for (a = x - 4; a <= x + 4; a++) {
+            for (var i = 0; i <= 4; i++) {
+                if (a + i < 0 || a + i > 8)
+                    break;
+            }
+            if (i != 5)
+                continue;
+            if (board[a][y] == color && board[a + 1][y] == color && board[a + 2][y] == color && board[a + 3][y] == color && board[a + 4][y] == color) {
+                var temp = 1;
+                while (a - temp >= 0 && board[a - temp][y] == color) {
+                    if (a - temp != x) {
+                        board[a - temp][y] = 0;
+                        flag++;
+                    }
+                    temp++;
+                }
+                temp = 1;
+                while (a + temp <= 8 && board[a + temp][y] == color) {
+                    if (a + temp != x) {
+                        board[a + temp][y] = 0;
+                        flag++;
+                    }
+                    temp++;
+                }
+                if (a != x) {
+                    board[a][y] = 0;
+                    flag++;
+                }
+            }
+        }
+        for (b = y - 4; b <= y + 4; b++) {
+            for (var i = 0; i <= 4; i++) {
+                if (b + i < 0 || b + i > 8)
+                    break;
+            }
+            if (i != 5)
+                continue;
+            if (board[x][b] == color && board[x][b + 1] == color && board[x][b + 2] == color && board[x][b + 3] == color && board[x][b + 4] == color) {
+                var temp = 1;
+                while (b - temp >= 0 && board[x][b - temp] == color) {
+                    if (b - temp != y) {
+                        flag++;
+                        board[x][b - temp] = 0;
+                    }
+                    temp++;
+                }
+                temp = 1;
+                while (b + temp <= 8 && board[x][b + temp] == color) {
+                    if (b + temp != y) {
+                        flag++;
+                        board[x][b + temp] = 0;
+                    }
+                    temp++;
+                }
+                if (b != y) {
+                    flag++;
+                    board[x][b] = 0;
+                }
+            }
+        }
+        for (a = x - 4, b = y - 4; a <= x + 4; a++, b++) {
+            for (var i = 0; i <= 4; i++) {
+                if (a + i < 0 || a + i > 8 || b + i < 0 || b + i > 8)
+                    break;
+            }
+            if (i != 5)
+                continue;
+            if (board[a][b] == color && board[a + 1][b + 1] == color && board[a + 2][b + 2] == color && board[a + 3][b + 3] == color && board[a + 4][b + 4] == color) {
+                var temp = 1;
+                while (a - temp >= 0 && b - temp >= 0 && board[a - temp][b - temp] == color) {
+                    if (a - temp != x && b - temp != y) {
+                        flag++;
+                        board[a - temp][b - temp] = 0;
+                    }
+                    temp++;
+                }
+                temp = 1;
+                while (a + temp <= 8 && b + temp <= 8 && board[a + temp][b + temp] == color) {
+                    if (a + temp != x && b + temp != y) {
+                        flag++;
+                        board[a + temp][b + temp] = 0;
+                    }
+                    temp++;
+                }
+                if (a != x && b != y) {
+                    flag++;
+                    board[a][b] = 0;
+                }
+            }
+        }
+        for (a = x - 4, b = y + 4; a <= x + 4; a++, b--) {
+            for (var i = 0; i <= 4; i++) {
+                if (a + i < 0 || a + i > 8 || b - i < 0 || b - i > 8)
+                    break;
+            }
+            if (i != 5)
+                continue;
+            if (board[a][b] == color && board[a + 1][b - 1] == color && board[a + 2][b - 2] == color && board[a + 3][b - 3] == color && board[a + 4][b - 4] == color) {
+                var temp = 1;
+                while (a - temp >= 0 && b + temp <= 8 && board[a - temp][b + temp] == color) {
+                    if (a - temp != x && b + temp != y) {
+                        flag++;
+                        board[a - temp][b + temp] = 0;
+                    }
+                    temp++;
+                }
+                temp = 1;
+                while (a + temp <= 8 && b - temp >= 0 && board[a + temp][b - temp] == color) {
+                    if (a + temp != x && b - temp != y) {
+                        flag++;
+                        board[a + temp][b - temp] = 0;
+                    }
+                    temp++;
+                }
+                if (a != x && b != y) {
+                    flag++;
+                    board[a][b] = 0;
+                }
+            }
+        }
+        if (flag != 0) {
+            flag++;
+            board[x][y] = 0;
+        }
+        return flag;
+    }
+
+    $(document).on("click", ".box.middle .main div", function () {//点击监听
+        var id = this.id;
+        if (board[id[0]][id[1]] != 0) {//当点击处是否为空白
+            var lastclick = document.getElementsByClassName("clicked");
+            if (lastclick.length != 0)
+                $(lastclick[0]).removeClass("clicked");
+            $(this).addClass("clicked");
+        } else {
+            var lastclick = document.getElementsByClassName("clicked");
+            if (lastclick.length == 0)
+                return;
+            var movething = lastclick[0];
+            var mid = $(movething).attr("id");
+            pointlist = new Array();
+            pointway = new Array();
+            if (!searchWay(mid, id)) {//判断能否移动
+                alert("这颗棋子无法移动到那个位置");
+                return false;
+            }
+            $(movething).removeClass().addClass("empty");
+            board[id[0]][id[1]] = board[mid[0]][mid[1]];
+            board[mid[0]][mid[1]] = 0;
+            var count = isVectory(parseInt(id[0]), parseInt(id[1]), board[id[0]][id[1]]);//消除判断方法
+            showBoard();//棋盘重新布局
+            setScore(count);
+            if (count == 0) {
+                setNext();//添加下一轮的三颗棋子
+                getNext();//获取再下一轮的三颗棋子
+            }
+        }
+    });
+
+    function searchWay(xy, aim) {
+        if (xy == aim)
+            return true;
+        pointlist.push(xy);
+        var x = parseInt(xy[0]);
+        var y = parseInt(xy[1]);
+        var xd = [-1, 0, 1, 0];
+        var yd = [0, 1, 0, -1];
+        for (var i = 0; i < 4; i++) {
+            var cx = x + xd[i];
+            var cy = y + yd[i];
+            if (cx < 0 || cx > 8 || cy < 0 || cy > 8)
+                continue;
+            var id = "";
+            id = id + cx + cy;
+            if (pointlist.indexOf(id) == -1 && board[cx][cy] == 0) {
+                if (searchWay(id, aim)) {
+                    pointway.push(id);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+</script>
+</html>
