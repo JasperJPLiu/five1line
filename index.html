@@ -2,6 +2,7 @@
 <html lang="zh-cn">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
     <title>Five on Line</title>
     <script type="text/javascript" src="jquery-3.2.1.min.js"></script>
 </head>
@@ -12,28 +13,60 @@
     }
 
     body {
-        padding-top: 5vw;
+        padding-top: 0;
         background-color: #000;
     }
 
+    /* 基础可缩放字号（供 rem 使用；当前主要直接为元素设置 clamp） */
+    html { font-size: clamp(12px, 1.6vmin, 16px); }
+
     .box {
-        position: absolute;
+        position: relative;
     }
 
     .box.left {
         width: 25%;
-        left: 0;
         margin: 0 auto;
     }
 
     .box.middle {
         width: 50%;
-        left: 25%;
     }
 
     .box.right {
         width: 25%;
-        left: 75%;
+    }
+
+    /* 外层容器：垂直居中三列主体 */
+    #app {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+    #app .layout {
+        display: flex;
+        width: 100%;
+        max-width: 180vmin; /* 受限于较小的视窗维度，矮屏时整体自动收缩 */
+        margin: 0 auto;
+    }
+
+    /* 小屏（宽度 <= 500px）单列布局与内容调整 */
+    @media (max-width: 430px) {
+        #app .layout {
+            flex-direction: column;
+            max-width: 100%;
+        }
+        .box.left, .box.middle, .box.right { width: 100%; }
+        .box.left { order: 1; }
+        .box.middle { order: 2; }
+        .box.right { order: 3; }
+        /* 左侧 cute 隐藏 */
+        #cute { display: none !important; }
+        /* 左侧“下一步”三个格子横向平铺占满 */
+        .box.left .main { width: 100%; margin-top: 1vmin; }
+        .box.left .main div { flex: 0 0 33.333333%; }
     }
 
     .main {
@@ -52,7 +85,7 @@
 
     .score {
         width: 60%;
-        height: 5vw;
+        height: 8vmin;
         margin: 0 auto;
         box-sizing: border-box;
         padding: 0.2%;
@@ -77,21 +110,22 @@
 
     .box.left .main {
         width: 60%;
-        height: 5vw;
+        height: auto; /* 由子项的正方形比例自然撑开 */
         margin: 0 auto;
     }
 
     .box.left .main div {
-        flex-basis: 33.333333%;
-        height: 100%;
+        flex: 0 0 33.333333%;
+        height: auto;
+        aspect-ratio: 1 / 1; /* 始终正方形 */
     }
 
     .box.left .main div::after {
         display: block;
         content: "";
-        width: 70%;
-        height: 3vw;
-        /*background-color: red;*/
+        width: 80%;
+        height: auto;
+        aspect-ratio: 1 / 1;
         border-radius: 50%;
         margin: 10% auto;
         border: 1px solid #000000;
@@ -103,18 +137,22 @@
         text-align: center;
         color: white;
         margin: 1vw auto 0.5vw auto;
+        font-size: clamp(14px, 2.2vmin, 22px);
     }
 
     .box.left h2 {
         text-align: center;
         color: white;
         margin: 1vw auto 0.5vw auto;
+        font-size: clamp(18px, 3.6vmin, 44px);
     }
 
     .box.middle .main {
         width: 100%;
-        height: 50vw;
-        margin: 1vw auto 0 auto;
+        height: auto;
+        aspect-ratio: 1 / 1; /* 保持棋盘正方形 */
+        margin: 1vmin auto 0 auto;
+        position: relative; /* 承载浮动棋子 */
     }
 
     .box.middle .main div {
@@ -122,17 +160,20 @@
         height: 11.11111111%;
     }
 
-    .box.middle .main div::after {
+    .box.middle .main div:not(.floating-ball)::after {
         display: block;
         content: "";
         width: 80%;
-        height: 4vw;
-        /*background-color: blue;*/
+        height: auto;
+        aspect-ratio: 1 / 1;
         border-radius: 50%;
         margin: 10% auto;
         border: 1px solid #000000;
-        box-shadow: inset -5px -4px 16px 1px black, 0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.3);;
+        box-shadow: inset -5px -4px 16px 1px rgba(0,0,0,0.85), 0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.3);
     }
+
+    /* 禁止浮动棋子生成伪元素，避免被通配 ::after 污染 */
+    .floating-ball::after { content: none !important; display: none !important; }
 
     @keyframes onclicked {
         0% {
@@ -244,22 +285,22 @@
     }
 
     #cute {
-        margin: 3vw auto;
+        margin: 3vmin auto;
         width: 80%;
-        height: 20vw;
+        height: 35vmin;
         background-image: url("cute.jpg");
-        background-size: 100% 20vw;
+        background-size: 100% 100%;
     }
 
     #probability {
         width: 80%;
-        margin: 2vw auto;
+        margin: 2vmin auto;
         color: white;
     }
 
     #probability tr td {
-        font-size: 2vw;
-        padding: 1vw 1vw;
+        font-size: clamp(12px, 6vmin, 38px);
+        padding: 1vmin 1vmin;
         border: 2px solid;
         border-color: white;
         text-align: right;
@@ -268,14 +309,38 @@
     #probability tr td div::after {
         display: block;
         content: "";
-        width: 3vw;
-        height: 3vw;
-        /*background-color: blue;*/
+        width: 6vmin;
+        height: 6vmin;
         border-radius: 50%;
         margin: 10% auto;
         border: 1px solid #fff;
         box-shadow: inset -5px -4px 16px 1px black;
     }
+
+    /* 浮动移动用的棋子（覆盖在棋盘上层） */
+    .floating-ball {
+        position: absolute;
+        left: 0;
+        top: 0;
+        border-radius: 50%;
+        border: 1px solid #000000;
+        /* 外环同棋盘底色，遮住格子高光边，避免肉眼看到白边 */
+        box-shadow: 0 0 0 3px #cccccc, inset -5px -4px 16px 1px rgba(0,0,0,0.85), 0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.3);
+        background-clip: padding-box;
+        pointer-events: none;
+        z-index: 10000;
+        transform: translate(0, 0) translateZ(0);
+        will-change: transform;
+        contain: paint;
+        transition: transform 120ms linear;
+    }
+    .floating-ball.red { background-color: red; }
+    .floating-ball.yellow { background-color: #ffea00; }
+    .floating-ball.blue { background-color: blue; }
+    .floating-ball.brown { background-color: saddlebrown; }
+    .floating-ball.pink { background-color: #f48fb1; }
+    .floating-ball.skyblue { background-color: #18ffff; }
+    .floating-ball.greenyellow { background-color: #64dd17; }
 
     .modal {
         position: absolute;
@@ -295,7 +360,11 @@
         margin: 8vw auto;
         border: 1px solid #3c3c3c;
         border-radius: 5%;
+        font-size: clamp(12px, 1.8vmin, 16px);
     }
+
+    .modal .modal-body h2 { font-size: clamp(16px, 2.8vmin, 28px); }
+    .modal .modal-body p { font-size: clamp(12px, 1.8vmin, 16px); }
 
     .modal .modal-body button {
         display: block;
@@ -304,6 +373,7 @@
         border-radius: 5%;
         outline: none;
         margin: 0 auto;
+        font-size: clamp(12px, 1.8vmin, 16px);
     }
 
     .box.right button {
@@ -313,9 +383,12 @@
         border-radius: 5%;
         outline: none;
         margin: 0 auto;
+        font-size: clamp(12px, 1.8vmin, 16px);
     }
 </style>
 <body>
+<div id="app">
+<div class="layout">
 <div class="box left">
     <h3>下一步</h3>
     <div class="main">
@@ -390,6 +463,8 @@
     </table>
     <button onclick="showSetting()">设置难度</button>
 </div>
+</div>
+</div>
 <div class="modal" id="setting" hidden>
     <div class="modal-body">
         <h2>设置</h2>
@@ -415,6 +490,9 @@
     var score = 0;
     var lastcount = 81;
     var difficulty = 2;
+    var isAnimating = false; // 是否正在执行移动动画，避免并发点击
+    var moveStepMs = 60; // 每一步动画间隔（毫秒）
+    var useSmoothAnimation = true; // 使用平滑移动动画
 
     function init() {
         turns = 0;
@@ -729,6 +807,7 @@
 
     $(document).on("click", ".box.middle .main div", function () {//点击监听
         var id = this.id;
+        if (isAnimating) return; // 动画过程中禁止操作
         if (board[id[0]][id[1]] != 0) {//当点击处是否为空白
             var lastclick = document.getElementsByClassName("clicked");
             if (lastclick.length != 0)
@@ -740,24 +819,209 @@
                 return;
             var movething = lastclick[0];
             var mid = $(movething).attr("id");
-            pointlist = new Array();
-            pointway = new Array();
-            if (!searchWay(mid, id)) {//判断能否移动
+            // 使用最短路径（BFS）查找从 mid 到 id 的路径
+            var path = findShortestPath(mid, id);
+            if (!path || path.length === 0 && mid !== id) { // 无法到达
                 alert("这颗棋子无法移动到那个位置");
                 return false;
             }
-            $(movething).removeClass().addClass("empty");
-            board[id[0]][id[1]] = board[mid[0]][mid[1]];
-            board[mid[0]][mid[1]] = 0;
-            var count = isVectory(parseInt(id[0]), parseInt(id[1]), board[id[0]][id[1]]);//消除判断方法
-            showBoard();//棋盘重新布局
-            setScore(count);
-            if (count == 0) {
-                setNext();//添加下一轮的三颗棋子
-                getNext();//获取再下一轮的三颗棋子
+            // 记录颜色并开始动画
+            var color = board[mid[0]][mid[1]];
+            $(movething).removeClass("clicked");
+            if (useSmoothAnimation) {
+                animateMoveSmooth(mid, path, color, function (endX, endY) {
+                    var count = isVectory(endX, endY, color);
+                    showBoard();
+                    setScore(count);
+                    if (count == 0) {
+                        setNext();
+                        getNext();
+                    }
+                });
+            } else {
+                animateMove(mid, path, color, function (endX, endY) {
+                    var count = isVectory(endX, endY, color);//消除判断方法
+                    showBoard();//棋盘重新布局
+                    setScore(count);
+                    if (count == 0) {
+                        setNext();//添加下一轮的三颗棋子
+                        getNext();//获取再下一轮的三颗棋子
+                    }
+                });
             }
         }
     });
+
+    // 使用 BFS 计算最短路径（返回从起点到终点的坐标 id 数组，不包含起点，包含终点）
+    function findShortestPath(startId, targetId) {
+        if (startId === targetId) return [];
+        var queue = [];
+        var visited = {};
+        var previous = {};
+        queue.push(startId);
+        visited[startId] = true;
+        var dx = [-1, 0, 1, 0];
+        var dy = [0, 1, 0, -1];
+        while (queue.length > 0) {
+            var cur = queue.shift();
+            var x = parseInt(cur[0]);
+            var y = parseInt(cur[1]);
+            for (var i = 0; i < 4; i++) {
+                var nx = x + dx[i];
+                var ny = y + dy[i];
+                if (nx < 0 || nx > 8 || ny < 0 || ny > 8) continue;
+                var nid = "" + nx + ny;
+                if (visited[nid]) continue;
+                // 允许走到目标格；其他格必须为空
+                if (nid !== targetId && board[nx][ny] !== 0) continue;
+                visited[nid] = true;
+                previous[nid] = cur;
+                if (nid === targetId) {
+                    // 回溯路径
+                    var path = [];
+                    var p = targetId;
+                    while (p !== startId) {
+                        path.unshift(p);
+                        p = previous[p];
+                    }
+                    return path;
+                }
+                queue.push(nid);
+            }
+        }
+        return null;
+    }
+
+    // 按最短路径执行逐步移动动画
+    function animateMove(startId, path, color, onComplete) {
+        isAnimating = true;
+        var stepIndex = 0;
+        function doStep() {
+            var prevId = stepIndex === 0 ? startId : path[stepIndex - 1];
+            var curId = path[stepIndex];
+            var px = parseInt(prevId[0]);
+            var py = parseInt(prevId[1]);
+            var cx = parseInt(curId[0]);
+            var cy = parseInt(curId[1]);
+            // 清空上一格，填充当前格
+            board[px][py] = 0;
+            board[cx][cy] = color;
+            showBoard();
+            stepIndex++;
+            if (stepIndex < path.length) {
+                setTimeout(doStep, moveStepMs);
+            } else {
+                isAnimating = false;
+                if (typeof onComplete === 'function') onComplete(cx, cy);
+            }
+        }
+        // 如果没有任何步长（start==end），直接回调
+        if (!path || path.length === 0) {
+            isAnimating = false;
+            if (typeof onComplete === 'function') {
+                var sx = parseInt(startId[0]);
+                var sy = parseInt(startId[1]);
+                onComplete(sx, sy);
+            }
+            return;
+        }
+        doStep();
+    }
+
+    // 平滑动画：创建浮动棋子沿像素路径移动，避免每步重绘整个棋盘
+    function animateMoveSmooth(startId, path, colorIdx, onComplete) {
+        isAnimating = true;
+        if (!path || path.length === 0) {
+            isAnimating = false;
+            if (typeof onComplete === 'function') {
+                var sx = parseInt(startId[0]);
+                var sy = parseInt(startId[1]);
+                onComplete(sx, sy);
+            }
+            return;
+        }
+        // DOM 引用
+        var $board = $(".box.middle .main");
+        var boardEl = $board[0];
+        var boardRect = boardEl.getBoundingClientRect();
+        // 网格大小（每格宽高）
+        var cellW = boardEl.clientWidth / 9;
+        var cellH = boardEl.clientHeight / 9;
+        var size = Math.min(cellW, cellH) * 0.8;
+
+        // 起点和路径终点
+        var sx = parseInt(startId[0]);
+        var sy = parseInt(startId[1]);
+        var ex = parseInt(path[path.length - 1][0]);
+        var ey = parseInt(path[path.length - 1][1]);
+
+        // 从棋盘移除原位置的球（逻辑层）并临时不重绘，避免闪烁
+        var savedColor = board[sx][sy];
+        board[sx][sy] = 0;
+        showBoard();
+
+        // 创建浮动球
+        var colorClass = colors[savedColor - 1];
+        var $float = $("<div class='floating-ball "+ colorClass +"'></div>");
+        // 以内联样式强制隔离所有来自 `.main div` 的通用规则
+        var colorMap = {
+            red: 'red',
+            yellow: '#ffea00',
+            blue: 'blue',
+            brown: 'saddlebrown',
+            pink: '#f48fb1',
+            skyblue: '#18ffff',
+            greenyellow: '#64dd17'
+        };
+        var bg = colorMap[colorClass] || colorClass;
+        $float.css({
+            width: size + 'px',
+            height: size + 'px',
+            boxSizing: 'content-box',
+            border: '1px solid #000',
+            borderRadius: '50%',
+            display: 'block',
+            backgroundColor: bg,
+            transition: 'transform ' + moveStepMs + 'ms linear'
+        });
+        $board.append($float);
+
+        // 根据网格计算像素坐标（居中到格子内）
+        function gridToTranslate(x, y) {
+            var left = y * cellW + (cellW - size) / 2;
+            var top = x * cellH + (cellH - size) / 2;
+            return {left: left, top: top};
+        }
+
+        function setTranslate(pos) {
+            $float.css('transform', 'translate(' + pos.left + 'px,' + pos.top + 'px)');
+        }
+
+        // 初始化位置为起点
+        setTranslate(gridToTranslate(sx, sy));
+
+        // 依次平滑移动到每个节点
+        var idx = 0;
+        function step() {
+            if (idx >= path.length) {
+                // 到达终点：写回逻辑层并清理浮动球
+                var tx = parseInt(path[path.length - 1][0]);
+                var ty = parseInt(path[path.length - 1][1]);
+                board[tx][ty] = savedColor;
+                $float.remove();
+                isAnimating = false;
+                if (typeof onComplete === 'function') onComplete(tx, ty);
+                return;
+            }
+            var nx = parseInt(path[idx][0]);
+            var ny = parseInt(path[idx][1]);
+            setTranslate(gridToTranslate(nx, ny));
+            idx++;
+            // 与逐格动画时长保持接近（可根据需要调大/调小过渡时间）
+            setTimeout(step, moveStepMs);
+        }
+        step();
+    }
 
     function searchWay(xy, aim) {
         if (xy == aim)
